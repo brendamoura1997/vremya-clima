@@ -70,7 +70,7 @@ export function CurrentWeather({ data, locationName }: CurrentWeatherProps) {
               <div className="flex items-center gap-2">
                 <Wind className="h-4 w-4 text-blue-500" />
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Vento (km/h)</p>
+                  <p className="text-sm font-medium">Vento (m/s)</p>
                   <p className="text-sm text-muted-foreground">{speed} m/s</p>
                 </div>
               </div>
