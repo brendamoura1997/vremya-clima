@@ -1,3 +1,4 @@
+import { CurrentWeather } from "@/components/current-weather";
 import WeatherSkeleton from "@/components/loading-skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,12 @@ const WeatherDashboard = () => {
   const forecastQuery = useForecastQuery(coordinates);
   const locationQuery = useReverseGeocodeQuery(coordinates);
 
-  console.log("locationQuery: ", locationQuery);
-
   const handleRefresh = () => {
     getLocation();
     if (coordinates) {
-      // reload nos dados do clima
+      weatherQuery.refetch();
+      forecastQuery.refetch();
+      locationQuery.refetch();
     }
   };
 
@@ -68,6 +69,28 @@ const WeatherDashboard = () => {
     );
   }
 
+  const locationName = locationQuery.data?.[0];
+
+  if (weatherQuery.error || forecastQuery.error) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Erro</AlertTitle>
+        <AlertDescription className="flex flex-col gap-4">
+          <p>Falha ao buscar dados meteorológicos. Tente novamente.</p>
+          <Button variant="outline" onClick={handleRefresh} className="w-fit">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Repetir
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!weatherQuery.data || !forecastQuery.data) {
+    return <WeatherSkeleton />;
+  }
+
   return (
     <div className="space-y-4">
       {/* CIDADES FAVORITAS */}
@@ -77,13 +100,31 @@ const WeatherDashboard = () => {
           variant={"outline"}
           size={"icon"}
           onClick={handleRefresh}
-          // disabled={}
+          disabled={weatherQuery.isFetching || forecastQuery.isFetching}
         >
-          <RefreshCw className="mr-2 h-4 w-4" />
+          <RefreshCw
+            className={`h-4 w-4 ${
+              weatherQuery.isFetching ? "animate-spin" : ""
+            }`}
+          />
         </Button>
       </div>
 
       {/* CLIMA ATUAL E POR HORÁRIO */}
+      <div className="grid gap-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <CurrentWeather
+            data={weatherQuery.data}
+            locationName={locationName}
+          />
+          {/* <HourlyTemperature data={forecastQuery.data} /> */}
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 items-start">
+          {/* <WeatherDetails data={weatherQuery.data} />
+          <WeatherForecast data={forecastQuery.data} /> */}
+        </div>
+      </div>
     </div>
   );
 };
