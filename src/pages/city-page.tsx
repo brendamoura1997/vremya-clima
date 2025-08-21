@@ -7,8 +7,9 @@ import { HourlyTemperature } from "@/components/hourly-temperature";
 import { WeatherDetails } from "../components/weather-details";
 import { WeatherForecast } from "../components/weather-forecast";
 import WeatherSkeleton from "../components/loading-skeleton";
+import { FavoriteButton } from "@/components/favorite-button";
 
-export function CityPage() {
+const CityPage = () => {
   const [searchParams] = useSearchParams();
   const params = useParams();
   const lat = parseFloat(searchParams.get("lat") || "0");
@@ -41,7 +42,11 @@ export function CityPage() {
         <h1 className="text-3xl font-bold tracking-tight">
           {params.cityName}, {weatherQuery.data.sys.country}
         </h1>
-        <div className="flex gap-2">{/* BOTÃO FAVORITOS */}</div>
+        <div className="flex gap-2">
+          <FavoriteButton
+            data={{ ...weatherQuery.data, name: params.cityName }}
+          />
+        </div>
       </div>
 
       <div className="grid gap-6">
@@ -54,4 +59,6 @@ export function CityPage() {
       </div>
     </div>
   );
-}
+};
+
+export default CityPage;
