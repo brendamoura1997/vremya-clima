@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { useSearchHistory } from "@/hooks/use-search-history";
+import { useFavorite } from "@/hooks/use-favorite";
 
 export function CitySearch() {
   const [open, setOpen] = useState(false);
@@ -22,6 +23,7 @@ export function CitySearch() {
   const navigate = useNavigate();
 
   const { data: locations, isLoading } = useLocationSearch(query);
+  const { favorites } = useFavorite();
   const { history, clearHistory, addToHistory } = useSearchHistory();
 
   const handleSelect = (cityData: string) => {
@@ -60,6 +62,60 @@ export function CitySearch() {
           <CommandList>
             {query.length > 2 && !isLoading && (
               <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
+            )}
+
+            {/* Sessão Favoritos */}
+            {favorites.length > 0 && (
+              <CommandGroup heading="Favorites">
+                {favorites.map((city) => (
+                  <CommandItem
+                    key={city.id}
+                    value={`${city.lat}|${city.lon}|${city.name}|${city.country}`}
+                    onSelect={handleSelect}
+                  >
+                    <Star className="mr-2 h-4 w-4 text-yellow-500" />
+                    <span>{city.name}</span>
+                    {city.state && (
+                      <span className="text-sm text-muted-foreground">
+                        , {city.state}
+                      </span>
+                    )}
+                    <span className="text-sm text-muted-foreground">
+                      , {city.country}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+
+            {/* Resultados da Pesquisa */}
+            <CommandSeparator />
+            {locations && locations.length > 0 && (
+              <CommandGroup heading="Suggestions">
+                {isLoading && (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                )}
+                {locations?.map((location) => (
+                  <CommandItem
+                    key={`${location.lat}-${location.lon}`}
+                    value={`${location.lat}|${location.lon}|${location.name}|${location.country}`}
+                    onSelect={handleSelect}
+                  >
+                    <Search className="mr-2 h-4 w-4" />
+                    <span>{location.name}</span>
+                    {location.state && (
+                      <span className="text-sm text-muted-foreground">
+                        , {location.state}
+                      </span>
+                    )}
+                    <span className="text-sm text-muted-foreground">
+                      , {location.country}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             )}
 
             {/* Sessão histórico de pesquisa */}
@@ -103,36 +159,6 @@ export function CitySearch() {
                   ))}
                 </CommandGroup>
               </>
-            )}
-
-            {/* Resultados da Pesquisa */}
-            <CommandSeparator />
-            {locations && locations.length > 0 && (
-              <CommandGroup heading="Suggestions">
-                {isLoading && (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  </div>
-                )}
-                {locations?.map((location) => (
-                  <CommandItem
-                    key={`${location.lat}-${location.lon}`}
-                    value={`${location.lat}|${location.lon}|${location.name}|${location.country}`}
-                    onSelect={handleSelect}
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    <span>{location.name}</span>
-                    {location.state && (
-                      <span className="text-sm text-muted-foreground">
-                        , {location.state}
-                      </span>
-                    )}
-                    <span className="text-sm text-muted-foreground">
-                      , {location.country}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
             )}
           </CommandList>
         </Command>
