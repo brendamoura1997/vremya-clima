@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Search, Loader2, Clock, Star, XCircle } from "lucide-react";
 import { useLocationSearch } from "@/hooks/use-weather";
 import {
@@ -25,6 +26,12 @@ export function CitySearch() {
   const { data: locations, isLoading } = useLocationSearch(query);
   const { favorites } = useFavorite();
   const { history, clearHistory, addToHistory } = useSearchHistory();
+
+  useEffect(() => {
+    const handleOpen = () => setOpen(true);
+    window.addEventListener("open-city-search", handleOpen);
+    return () => window.removeEventListener("open-city-search", handleOpen);
+  }, []);
 
   const handleSelect = (cityData: string) => {
     const [lat, lon, name, country] = cityData.split("|");
@@ -66,7 +73,7 @@ export function CitySearch() {
 
             {/* Sessão Favoritos */}
             {favorites.length > 0 && (
-              <CommandGroup heading="Favorites">
+              <CommandGroup heading="Favoritos">
                 {favorites.map((city) => (
                   <CommandItem
                     key={city.id}
@@ -91,7 +98,7 @@ export function CitySearch() {
             {/* Resultados da Pesquisa */}
             <CommandSeparator />
             {locations && locations.length > 0 && (
-              <CommandGroup heading="Suggestions">
+              <CommandGroup heading="Sugestões">
                 {isLoading && (
                   <div className="flex items-center justify-center p-4">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -153,7 +160,9 @@ export function CitySearch() {
                         , {location.country}
                       </span>
                       <span className="ml-auto text-xs text-muted-foreground">
-                        {format(location.searchedAt, "MMM d, h:mm a")}
+                        {format(location.searchedAt, "d MMM, HH:mm", {
+                          locale: ptBR,
+                        })}
                       </span>
                     </CommandItem>
                   ))}
