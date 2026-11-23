@@ -12,7 +12,7 @@ export function WeatherDetails({ data }: WeatherDetailsProps) {
 
   // Formata o tempo com o date-fns
   const formatTime = (timestamp: number) => {
-    return format(new Date(timestamp * 1000), "h:mm a");
+    return format(new Date(timestamp * 1000), "HH:mm");
   };
 
   // Converte o grau do vento em direção

@@ -26,7 +26,7 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
   const chartData: ChartData[] = data.list
     .slice(0, 8) // Pega as próximas 24 horas (intervalo de 3h)
     .map((item) => ({
-      time: format(new Date(item.dt * 1000), "ha"), // formato unix, hour + am
+      time: format(new Date(item.dt * 1000), "HH'h'"), // formato unix, hour + am
       temp: Math.round(item.main.temp),
       feels_like: Math.round(item.main.feels_like),
     }));
