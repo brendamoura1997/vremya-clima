@@ -64,17 +64,27 @@ export function useGeolocation() {
       return;
     }
 
+    let promptTimeout: ReturnType<typeof setTimeout> | undefined;
+
     if (permissionState === "prompt") {
-      setLocationData({
-        coordinates: null,
-        error: "Precisamos da sua permissão para acessar a localização.",
-        errorType: "denied",
-        isLoading: false,
-      });
+      promptTimeout = setTimeout(() => {
+        setLocationData((prev) => {
+          if (prev.isLoading && !prev.error) {
+            return {
+              coordinates: null,
+              error: "Precisamos da sua permissão para acessar a localização.",
+              errorType: "denied",
+              isLoading: false,
+            };
+          }
+          return prev;
+        });
+      }, 800);
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        if (promptTimeout) clearTimeout(promptTimeout);
         setLocationData({
           coordinates: {
             lat: position.coords.latitude,
@@ -86,6 +96,8 @@ export function useGeolocation() {
         });
       },
       (error) => {
+        if (promptTimeout) clearTimeout(promptTimeout);
+
         let errorMessage: string;
         let errorType: GeolocationErrorType;
 
@@ -107,21 +119,37 @@ export function useGeolocation() {
             }
             break;
           case error.TIMEOUT:
-            errorMessage =
-              "Tempo limite da solicitação de localização expirou.";
-            errorType = "timeout";
+            if (permissionState === "prompt") {
+              errorMessage =
+                "Precisamos da sua permissão para acessar a localização.";
+              errorType = "denied";
+            } else {
+              errorMessage =
+                "Tempo limite da solicitação de localização expirou.";
+              errorType = "timeout";
+            }
             break;
           default:
             errorMessage = "Ocorreu um erro desconhecido.";
             errorType = "unknown";
         }
 
-        setLocationData({
-          coordinates: null,
-          error: errorMessage,
-          errorType,
-          isLoading: false,
-        });
+        const delay =
+          errorType === "unknown" || errorType === "unavailable" ? 1000 : 0;
+
+        setTimeout(() => {
+          setLocationData((prev) => {
+            if (prev.isLoading) {
+              return {
+                coordinates: null,
+                error: errorMessage,
+                errorType,
+                isLoading: false,
+              };
+            }
+            return prev;
+          });
+        }, delay);
       },
       {
         enableHighAccuracy: false,
