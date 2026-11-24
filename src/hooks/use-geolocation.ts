@@ -15,6 +15,19 @@ interface GeolocationState {
   isLoading: boolean;
 }
 
+const PERMISSION_MESSAGE =
+  "Permissão de localização negada. Habilite o acesso à localização.";
+
+async function queryPermissionState(): Promise<PermissionState | null> {
+  try {
+    if (!navigator.permissions) return null;
+    const status = await navigator.permissions.query({ name: "geolocation" });
+    return status.state;
+  } catch {
+    return null;
+  }
+}
+
 export function useGeolocation() {
   const [locationData, setLocationData] = useState<GeolocationState>({
     coordinates: null,
@@ -23,7 +36,7 @@ export function useGeolocation() {
     isLoading: true,
   });
 
-  const getLocation = () => {
+  const getLocation = async () => {
     setLocationData((prev) => ({
       ...prev,
       isLoading: true,
@@ -41,6 +54,17 @@ export function useGeolocation() {
       return;
     }
 
+    const initialState = await queryPermissionState();
+
+    if (initialState === "prompt" || initialState === "denied") {
+      setLocationData({
+        coordinates: null,
+        error: PERMISSION_MESSAGE,
+        errorType: "denied",
+        isLoading: false,
+      });
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocationData({
@@ -53,14 +77,13 @@ export function useGeolocation() {
           isLoading: false,
         });
       },
-      (error) => {
+      async (error) => {
         let errorMessage: string;
         let errorType: GeolocationErrorType;
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage =
-              "Permissão de localização negada. Habilite o acesso à localização.";
+            errorMessage = PERMISSION_MESSAGE;
             errorType = "denied";
             break;
           case error.POSITION_UNAVAILABLE:
@@ -76,6 +99,14 @@ export function useGeolocation() {
           default:
             errorMessage = "Ocorreu um erro desconhecido.";
             errorType = "unknown";
+        }
+
+        if (error.code !== error.TIMEOUT && errorType !== "denied") {
+          const currentState = await queryPermissionState();
+          if (currentState === "prompt" || currentState === "denied") {
+            errorMessage = PERMISSION_MESSAGE;
+            errorType = "denied";
+          }
         }
 
         setLocationData({
@@ -96,6 +127,31 @@ export function useGeolocation() {
   // Pega a localização quando o componente monta
   useEffect(() => {
     getLocation();
+  }, []);
+
+  useEffect(() => {
+    let status: PermissionStatus | null = null;
+    let cancelled = false;
+
+    const handleChange = () => {
+      if (status?.state === "granted") getLocation();
+    };
+
+    if (navigator.permissions) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((result) => {
+          if (cancelled) return;
+          status = result;
+          status.addEventListener("change", handleChange);
+        })
+        .catch(() => null);
+    }
+
+    return () => {
+      cancelled = true;
+      status?.removeEventListener("change", handleChange);
+    };
   }, []);
 
   return {
