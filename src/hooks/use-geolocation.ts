@@ -15,19 +15,6 @@ interface GeolocationState {
   isLoading: boolean;
 }
 
-const PERMISSION_MESSAGE =
-  "Permissão de localização negada. Habilite o acesso à localização.";
-
-async function queryPermissionState(): Promise<PermissionState | null> {
-  try {
-    if (!navigator.permissions) return null;
-    const status = await navigator.permissions.query({ name: "geolocation" });
-    return status.state;
-  } catch {
-    return null;
-  }
-}
-
 export function useGeolocation() {
   const [locationData, setLocationData] = useState<GeolocationState>({
     coordinates: null,
@@ -54,12 +41,33 @@ export function useGeolocation() {
       return;
     }
 
-    const initialState = await queryPermissionState();
+    let permissionState = "prompt";
+    if (navigator.permissions) {
+      try {
+        const permission = await navigator.permissions.query({
+          name: "geolocation",
+        });
+        permissionState = permission.state;
+      } catch (e) {
+        // Silenciosamente ignora se a API de permissões não estiver disponível
+      }
+    }
 
-    if (initialState === "prompt" || initialState === "denied") {
+    if (permissionState === "denied") {
       setLocationData({
         coordinates: null,
-        error: PERMISSION_MESSAGE,
+        error:
+          "Permissão de localização negada. Habilite o acesso à localização.",
+        errorType: "denied",
+        isLoading: false,
+      });
+      return;
+    }
+
+    if (permissionState === "prompt") {
+      setLocationData({
+        coordinates: null,
+        error: "Precisamos da sua permissão para acessar a localização.",
         errorType: "denied",
         isLoading: false,
       });
@@ -77,19 +85,26 @@ export function useGeolocation() {
           isLoading: false,
         });
       },
-      async (error) => {
+      (error) => {
         let errorMessage: string;
         let errorType: GeolocationErrorType;
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = PERMISSION_MESSAGE;
+            errorMessage =
+              "Permissão de localização negada. Habilite o acesso à localização.";
             errorType = "denied";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage =
-              "As informações de localização não estão disponíveis.";
-            errorType = "unavailable";
+            if (permissionState === "prompt") {
+              errorMessage =
+                "Precisamos da sua permissão para acessar a localização.";
+              errorType = "denied";
+            } else {
+              errorMessage =
+                "As informações de localização não estão disponíveis.";
+              errorType = "unavailable";
+            }
             break;
           case error.TIMEOUT:
             errorMessage =
@@ -99,14 +114,6 @@ export function useGeolocation() {
           default:
             errorMessage = "Ocorreu um erro desconhecido.";
             errorType = "unknown";
-        }
-
-        if (error.code !== error.TIMEOUT && errorType !== "denied") {
-          const currentState = await queryPermissionState();
-          if (currentState === "prompt" || currentState === "denied") {
-            errorMessage = PERMISSION_MESSAGE;
-            errorType = "denied";
-          }
         }
 
         setLocationData({
@@ -127,31 +134,6 @@ export function useGeolocation() {
   // Pega a localização quando o componente monta
   useEffect(() => {
     getLocation();
-  }, []);
-
-  useEffect(() => {
-    let status: PermissionStatus | null = null;
-    let cancelled = false;
-
-    const handleChange = () => {
-      if (status?.state === "granted") getLocation();
-    };
-
-    if (navigator.permissions) {
-      navigator.permissions
-        .query({ name: "geolocation" })
-        .then((result) => {
-          if (cancelled) return;
-          status = result;
-          status.addEventListener("change", handleChange);
-        })
-        .catch(() => null);
-    }
-
-    return () => {
-      cancelled = true;
-      status?.removeEventListener("change", handleChange);
-    };
   }, []);
 
   return {
