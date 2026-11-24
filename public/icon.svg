@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="808" height="316" viewBox="0 0 808 316" fill="none">
+  <defs>
+    <linearGradient id="mountainBase" x1="5" y1="160" x2="803" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#26003F"/>
+      <stop offset="0.48" stop-color="#380052"/>
+      <stop offset="0.72" stop-color="#81249D"/>
+      <stop offset="1" stop-color="#C13ED4"/>
+    </linearGradient>
+    <linearGradient id="rightSlope" x1="451" y1="5" x2="803" y2="313" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8B2AA5"/>
+      <stop offset="1" stop-color="#C63DDA"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M5 313L451 5L803 313H5Z" fill="url(#mountainBase)"/>
+
+  <path d="M5 313L451 5L428 28L87 313H5Z" fill="#25003F"/>
+  <path d="M87 313L428 28L426 55L163 313H87Z" fill="#3C075A"/>
+  <path d="M163 313L426 55L307 313H163Z" fill="#4A0B68"/>
+  <path d="M247 313L429 27L367 313H247Z" fill="#26003F"/>
+  <path d="M307 313L429 27L450 5L426 313H307Z" fill="#32004E" opacity="0.9"/>
+
+  <path d="M451 5L521 109L512 145L565 267L502 185L483 254L466 120L490 313H803L451 5Z" fill="url(#rightSlope)"/>
+  <path d="M451 5L521 109L512 145L483 254L466 120L490 313H367L429 27L451 5Z" fill="#25003F"/>
+  <path d="M429 27L451 5L436 263L414 151L385 232L367 313L307 313Z" fill="#1F0037" opacity="0.95"/>
+  <path d="M451 5L488 82L512 145L483 254L466 120L452 102L436 263L426 156L429 27Z" fill="#2D0046"/>
+  <path d="M466 120L502 185L483 254L490 313H530L500 188L512 145Z" fill="#70208E" opacity="0.9"/>
+  <path d="M502 185L565 267L530 313H490L483 254Z" fill="#A334BD" opacity="0.72"/>
+  <path d="M451 5L803 313H571L500 185L565 267L512 145L521 109Z" fill="#C13ED4" opacity="0.22"/>
+
+  <path d="M5 312H803V316H5Z" fill="#35104B"/>
+</svg>
