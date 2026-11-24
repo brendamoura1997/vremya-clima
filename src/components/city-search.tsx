@@ -53,7 +53,7 @@ export function CitySearch() {
     <>
       <Button
         variant="outline"
-        className="relative w-full justify-start text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64"
+        className="relative justify-start text-sm text-muted-foreground pr-12 w-40 lg:w-64"
         onClick={() => setOpen(true)}
       >
         <Search className="mr-2 h-4 w-4" />
@@ -79,6 +79,7 @@ export function CitySearch() {
                     key={city.id}
                     value={`${city.lat}|${city.lon}|${city.name}|${city.country}`}
                     onSelect={handleSelect}
+                    className="cursor-pointer"
                   >
                     <Star className="mr-2 h-4 w-4 text-yellow-500" />
                     <span>{city.name}</span>
@@ -109,6 +110,7 @@ export function CitySearch() {
                     key={`${location.lat}-${location.lon}`}
                     value={`${location.lat}|${location.lon}|${location.name}|${location.country}`}
                     onSelect={handleSelect}
+                    className="cursor-pointer"
                   >
                     <Search className="mr-2 h-4 w-4" />
                     <span>{location.name}</span>
@@ -138,6 +140,7 @@ export function CitySearch() {
                       variant="ghost"
                       size="sm"
                       onClick={() => clearHistory.mutate()}
+                      className="cursor-pointer"
                     >
                       <XCircle className="h-4 w-4" />
                       Limpar
@@ -148,6 +151,7 @@ export function CitySearch() {
                       key={location.id}
                       value={`${location.lat}|${location.lon}|${location.name}|${location.country}`}
                       onSelect={handleSelect}
+                      className="cursor-pointer"
                     >
                       <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                       <span>{location.name}</span>
