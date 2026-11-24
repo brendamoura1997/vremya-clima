@@ -19,9 +19,9 @@ const CONTENT: Record<
     actionLabel: "Permitir localização",
   },
   denied: {
-    title: "Precisamos da sua permissão",
+    title: "Precisamos da sua permissão 🌞",
     description:
-      "Para mostrar o clima da sua região, clique no ícone de cadeado ao lado do endereço do site, permita a localização e tente novamente. Você também pode buscar uma cidade manualmente.",
+      "Para mostrar o clima da sua região, clique no ícone ao lado do endereço do site, permita a localização e tente novamente. Você também pode buscar uma cidade manualmente.",
     actionLabel: "Tentar novamente",
   },
   unavailable: {
