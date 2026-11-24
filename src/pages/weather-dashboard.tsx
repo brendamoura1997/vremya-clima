@@ -11,13 +11,15 @@ import {
   useReverseGeocodeQuery,
   useWeatherQuery,
 } from "@/hooks/use-weather";
-import { AlertTriangle, MapPin, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { FavoriteCities } from "@/components/favorite-cities";
+import { LocationPrompt } from "@/components/location-prompt";
 
 const WeatherDashboard = () => {
   const {
     coordinates,
     error: locationError,
+    errorType,
     isLoading: locationLoading,
     getLocation,
   } = useGeolocation();
@@ -39,37 +41,12 @@ const WeatherDashboard = () => {
     return <WeatherSkeleton />;
   }
 
-  if (locationError) {
+  if (locationError || !coordinates) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Erro de localização</AlertTitle>
-        <AlertDescription className="flex flex-col gap-4">
-          <p>{locationError}</p>
-          <Button onClick={getLocation} variant="outline" className="w-fit">
-            <MapPin className="mr-2 h-4 w-4" />
-            Ativar localização
-          </Button>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (!coordinates) {
-    return (
-      <Alert>
-        <MapPin className="h-4 w-4" />
-        <AlertTitle>Solicitação para localização</AlertTitle>
-        <AlertDescription className="flex flex-col gap-4">
-          <p>
-            Ative o acesso à localização para ver o clima da sua localidade.
-          </p>
-          <Button variant="outline" onClick={getLocation} className="w-fit">
-            <MapPin className="mr-2 h-4 w-4" />
-            Ativar localização
-          </Button>
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-6">
+        <FavoriteCities />
+        <LocationPrompt errorType={errorType} onRequestLocation={getLocation} />
+      </div>
     );
   }
 
@@ -106,6 +83,7 @@ const WeatherDashboard = () => {
           size={"icon"}
           onClick={handleRefresh}
           disabled={weatherQuery.isFetching || forecastQuery.isFetching}
+          className="cursor-pointer"
         >
           <RefreshCw
             className={`h-4 w-4 ${
