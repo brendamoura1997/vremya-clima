@@ -23,7 +23,7 @@ export function useGeolocation() {
     isLoading: true,
   });
 
-  const getLocation = () => {
+  const getLocation = async () => {
     setLocationData((prev) => ({
       ...prev,
       isLoading: true,
@@ -39,6 +39,38 @@ export function useGeolocation() {
         isLoading: false,
       });
       return;
+    }
+
+    let permissionState = "prompt";
+    if (navigator.permissions) {
+      try {
+        const permission = await navigator.permissions.query({
+          name: "geolocation",
+        });
+        permissionState = permission.state;
+      } catch (e) {
+        // Silenciosamente ignora se a API de permissões não estiver disponível
+      }
+    }
+
+    if (permissionState === "denied") {
+      setLocationData({
+        coordinates: null,
+        error:
+          "Permissão de localização negada. Habilite o acesso à localização.",
+        errorType: "denied",
+        isLoading: false,
+      });
+      return;
+    }
+
+    if (permissionState === "prompt") {
+      setLocationData({
+        coordinates: null,
+        error: "Precisamos da sua permissão para acessar a localização.",
+        errorType: "denied",
+        isLoading: false,
+      });
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -64,9 +96,15 @@ export function useGeolocation() {
             errorType = "denied";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage =
-              "As informações de localização não estão disponíveis.";
-            errorType = "unavailable";
+            if (permissionState === "prompt") {
+              errorMessage =
+                "Precisamos da sua permissão para acessar a localização.";
+              errorType = "denied";
+            } else {
+              errorMessage =
+                "As informações de localização não estão disponíveis.";
+              errorType = "unavailable";
+            }
             break;
           case error.TIMEOUT:
             errorMessage =
