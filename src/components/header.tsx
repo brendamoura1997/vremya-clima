@@ -1,6 +1,5 @@
 import { useTheme } from "@/context/theme-provider";
 import { Moon, Sun } from "lucide-react";
-import React from "react";
 import { Link } from "react-router-dom";
 import { CitySearch } from "./city-search";
 
@@ -13,12 +12,12 @@ const Header = () => {
       className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur py-2
       supports-[backdrop-filter]:bg-background/60"
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-4">
         <Link to={"/"}>
           <img
             src={isDark ? "/logo2.svg" : "/logo.svg"}
             alt="Vremya logo"
-            className="h-8"
+            className="h-6 md:h-8"
           />
         </Link>
 
