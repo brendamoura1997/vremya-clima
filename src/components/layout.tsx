@@ -2,25 +2,26 @@ import type { PropsWithChildren } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./header";
 import IntroLandscape from "./intro-landscape";
+import { Footer } from "./footer";
+import { cn } from "@/lib/utils";
 
 const Layout = ({ children }: PropsWithChildren) => {
   const { pathname } = useLocation();
+  const isHome = pathname === "/";
 
   return (
-    <div className="bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted">
       <Header />
-      {pathname === "/" && <IntroLandscape />}
-      <main className="min-h-screen container mx-auto px-4 py-8">
+      {isHome && <IntroLandscape />}
+      <main
+        className={cn(
+          "container relative z-10 mx-auto min-h-[60vh] px-4 pb-12",
+          isHome ? "-mt-12" : "py-8",
+        )}
+      >
         {children}
       </main>
-      <footer
-        className="border-t backdrop-blur py-12 supports-[backdrop-filter]
-      :bg-background/60"
-      >
-        <div className="container mx-auto px-4 text-center text-gray-400">
-          <p>Website by Brenda Moura</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

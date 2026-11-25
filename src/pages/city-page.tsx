@@ -50,9 +50,11 @@ const CityPage = () => {
       </div>
 
       <div className="grid gap-6">
-        <CurrentWeather data={weatherQuery.data} />
-        <HourlyTemperature data={forecastQuery.data} />
-        <div className="grid gap-6 md:grid-cols-2 items-start">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]">
+          <CurrentWeather data={weatherQuery.data} />
+          <HourlyTemperature data={forecastQuery.data} />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <WeatherDetails data={weatherQuery.data} />
           <WeatherForecast data={forecastQuery.data} />
         </div>

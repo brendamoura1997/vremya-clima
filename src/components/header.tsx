@@ -1,41 +1,47 @@
-import { useTheme } from "@/context/theme-provider";
-import { Moon, Sun } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { CitySearch } from "./city-search";
+import { ThemeToggle } from "./theme-toggle";
 
 const Header = () => {
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { pathname } = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const isHome = pathname === "/";
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const solid = scrolled || !isHome;
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur py-2
-      supports-[backdrop-filter]:bg-background/60"
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
+        solid
+          ? "bg-background/70 backdrop-blur-lg"
+          : "border-transparent bg-transparent"
+      }`}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-4">
-        <Link to={"/"}>
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+        <Link to={"/"} className="shrink-0">
           <img
-            src={isDark ? "/logo2.svg" : "/logo.svg"}
+            src="/logo.svg"
             alt="Vremya logo"
-            className="h-6 md:h-8"
+            className="h-8 w-auto md:h-11 dark:hidden"
+          />
+          <img
+            src="/logo2.svg"
+            alt="Vremya logo"
+            className="hidden h-8 w-auto md:h-11 dark:block"
           />
         </Link>
 
-        <div className="flex gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <CitySearch />
-
-          <div
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            className={`flex items-center cursor-pointer transition-transform duration-500 ${
-              isDark ? "rotate-180" : "rotate-0"
-            }`}
-          >
-            {isDark ? (
-              <Sun className="h-6 w-6 text-yellow-500 rotate-0 transition-all" />
-            ) : (
-              <Moon className="h-6 w-6 text-blue-500 rotate-0 transition-all" />
-            )}
-          </div>
+          <ThemeToggle />
         </div>
       </div>
     </header>
