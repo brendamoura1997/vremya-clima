@@ -1,5 +1,5 @@
-import { Card, CardContent } from "./ui/card";
-import { ArrowDown, ArrowUp, Droplets, Wind } from "lucide-react";
+import { Card } from "./ui/card";
+import { ArrowDown, ArrowUp, Droplets, Thermometer, Wind } from "lucide-react";
 import type { WeatherData, GeocodingResponse } from "@/api/types";
 
 interface CurrentWeatherProps {
@@ -18,81 +18,85 @@ export function CurrentWeather({ data, locationName }: CurrentWeatherProps) {
   const formatTemp = (temp: number) => `${Math.round(temp)}°`;
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <h2 className="text-2xl font-bold tracking-tight">
-                  {locationName?.name}
-                </h2>
-                {locationName?.state && (
+    <Card className="h-full gap-0 overflow-hidden py-0">
+      <div className="flex flex-1 flex-col gap-6 p-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 space-y-3">
+            {locationName && (
+              <h2 className="text-sm font-medium">
+                {locationName.name}
+                {locationName.state && (
                   <span className="text-muted-foreground">
                     , {locationName.state}
                   </span>
                 )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {locationName?.country}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <p className="text-7xl font-bold tracking-tighter">
-                {formatTemp(temp)}C
-              </p>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Sensação: {formatTemp(feels_like)}C
-                </p>
-                <div className="flex gap-2 text-sm font-medium">
-                  <span className="flex items-center gap-1 text-blue-500">
-                    <ArrowDown className="h-3 w-3" />
-                    {formatTemp(temp_min)}C
-                  </span>
-                  <span className="flex items-center gap-1 text-red-500">
-                    <ArrowUp className="h-3 w-3" />
-                    {formatTemp(temp_max)}C
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <Droplets className="h-4 w-4 text-blue-500" />
-                <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Umidade</p>
-                  <p className="text-sm text-muted-foreground">{humidity}%</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Wind className="h-4 w-4 text-blue-500" />
-                <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Vento (m/s)</p>
-                  <p className="text-sm text-muted-foreground">{speed} m/s</p>
-                </div>
-              </div>
-            </div>
+                <span className="ml-2 text-xs text-muted-foreground">
+                  {locationName.country}
+                </span>
+              </h2>
+            )}
+            <p className="flex items-start text-7xl leading-none font-extrabold tracking-tighter">
+              {Math.round(temp)}
+              <span className="ml-1 mt-1 text-3xl font-medium tracking-normal">
+                °C
+              </span>
+            </p>
+            <p className="text-sm font-medium">
+              Sensação: {formatTemp(feels_like)}C
+            </p>
           </div>
+          <img
+            src={`https://openweathermap.org/img/wn/${currentWeather.icon}@4x.png`}
+            alt={currentWeather.description}
+            className="-mr-2 h-28 w-28 shrink-0 object-contain md:h-32 md:w-32"
+          />
+        </div>
 
-          <div className="flex flex-col items-center justify-center">
-            <div className="relative flex aspect-square w-full max-w-[200px] items-center justify-center">
-              <img
-                src={`https://openweathermap.org/img/wn/${currentWeather.icon}@4x.png`}
-                alt={currentWeather.description}
-                className="h-full w-full object-contain"
-              />
-              <div className="absolute bottom-0 text-center">
-                <p className="text-sm font-medium capitalize">
-                  {currentWeather.description}
-                </p>
-              </div>
-            </div>
+        <div className="mt-auto flex items-center gap-3">
+          <img
+            src={`https://openweathermap.org/img/wn/${currentWeather.icon}@2x.png`}
+            alt=""
+            aria-hidden="true"
+            className="h-12 w-12 shrink-0 object-contain"
+          />
+          <p className="text-sm font-semibold capitalize">
+            {currentWeather.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 divide-x border-t bg-muted/50 py-4">
+        <div className="flex items-center justify-center gap-2 px-2">
+          <Droplets className="h-5 w-5 shrink-0 text-blue-500" />
+          <div className="leading-tight">
+            <p className="text-xs text-muted-foreground">Umidade</p>
+            <p className="text-sm font-semibold">{humidity}%</p>
           </div>
         </div>
-      </CardContent>
+        <div className="flex items-center justify-center gap-2 px-2">
+          <Wind className="h-5 w-5 shrink-0 text-blue-500" />
+          <div className="leading-tight">
+            <p className="text-xs text-muted-foreground">Vento</p>
+            <p className="text-sm font-semibold">{speed} m/s</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 px-2">
+          <Thermometer className="h-5 w-5 shrink-0 text-orange-500" />
+          <div className="leading-tight">
+            <p className="text-xs text-muted-foreground">Mín / Máx</p>
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              <span className="flex items-center text-blue-500">
+                <ArrowDown className="h-3 w-3" />
+                {formatTemp(temp_min)}
+              </span>
+              <span className="flex items-center text-red-500">
+                <ArrowUp className="h-3 w-3" />
+                {formatTemp(temp_max)}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }
