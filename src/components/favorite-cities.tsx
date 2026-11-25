@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useWeatherQuery } from "@/hooks/use-weather";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Star, Plus, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavorite } from "@/hooks/use-favorite";
 import { toast } from "sonner";
@@ -32,14 +32,19 @@ function FavoriteCityTablet({
   return (
     <div
       onClick={handleClick}
-      className="relative flex min-w-[250px] cursor-pointer items-center gap-3 rounded-lg border bg-card p-4 pr-8 shadow-sm transition-all hover:shadow-md"
+      className="relative flex h-14 min-w-[240px] shrink-0 cursor-pointer items-center gap-3 rounded-full border bg-card/80 py-2 pl-4 pr-12 shadow-md shadow-primary/5 backdrop-blur transition-all hover:shadow-lg"
       role="button"
       tabIndex={0}
+      title={
+        weather
+          ? `${name}, ${weather.sys.country} - ${weather.weather[0].description}`
+          : name
+      }
     >
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-1 top-1 h-6 w-6 rounded-full p-0 cursor-pointer hover:text-destructive-foreground group-hover:opacity-100"
+        className="absolute right-3 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full p-0 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           onRemove(id);
@@ -55,25 +60,15 @@ function FavoriteCityTablet({
         </div>
       ) : weather ? (
         <>
-          <div className="flex items-center gap-2">
-            <img
-              src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
-              alt={weather.weather[0].description}
-              className="h-8 w-8"
-            />
-            <div>
-              <p className="font-medium">{name}</p>
-              <p className="text-xs text-muted-foreground">
-                {weather.sys.country}
-              </p>
-            </div>
-          </div>
-          <div className="ml-auto text-right">
-            <p className="text-xl font-bold">
+          <img
+            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
+            alt={weather.weather[0].description}
+            className="h-10 w-10 shrink-0"
+          />
+          <div className="min-w-0 leading-tight">
+            <p className="truncate text-sm font-medium">{name}</p>
+            <p className="text-sm font-semibold">
               {Math.round(weather.main.temp)}°C
-            </p>
-            <p className="text-xs capitalize text-muted-foreground">
-              {weather.weather[0].description}
             </p>
           </div>
         </>
@@ -89,21 +84,46 @@ export function FavoriteCities() {
     return null;
   }
 
+  const openCitySearch = () => {
+    window.dispatchEvent(new CustomEvent("open-city-search"));
+  };
+
   return (
-    <>
-      <h1 className="text-xl font-bold tracking-tight">Favoritos</h1>
-      <ScrollArea className="w-full pb-4">
-        <div className="flex gap-4">
-          {favorites.map((city) => (
-            <FavoriteCityTablet
-              key={city.id}
-              {...city}
-              onRemove={() => removeFavorite.mutate(city.id)}
-            />
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" className="mt-2" />
-      </ScrollArea>
-    </>
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight">
+        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+        Seus favoritos
+      </h2>
+      <div className="flex items-center gap-4">
+        <ScrollArea className="min-w-0 flex-1 pb-4">
+          <div className="flex items-center gap-4">
+            {favorites.map((city) => (
+              <FavoriteCityTablet
+                key={city.id}
+                {...city}
+                onRemove={() => removeFavorite.mutate(city.id)}
+              />
+            ))}
+            <Button
+              variant="outline"
+              onClick={openCitySearch}
+              className="h-14 shrink-0 rounded-full border-primary bg-card/60 px-6 text-primary hover:bg-primary/10 hover:text-primary dark:border-primary dark:bg-card/40"
+            >
+              <Plus className="h-4 w-4" />
+              Adicionar cidade
+            </Button>
+          </div>
+          <ScrollBar orientation="horizontal" className="mt-2" />
+        </ScrollArea>
+        <Button
+          variant="outline"
+          onClick={openCitySearch}
+          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-6 shadow-md md:inline-flex"
+        >
+          Ver todos
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </section>
   );
 }
