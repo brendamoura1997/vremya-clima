@@ -1,0 +1,34 @@
+<svg width="135" height="55" viewBox="40 45 1310 535" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vremya">
+  <defs>
+    <linearGradient id="logo-mountain2-foot" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1c0f5c"/>
+      <stop offset="1" stop-color="#2f1186"/>
+    </linearGradient>
+    <linearGradient id="logo-mountain2-ridge" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#150d45"/>
+      <stop offset="1" stop-color="#22146a"/>
+    </linearGradient>
+    <linearGradient id="logo-mountain2-body" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#33159f"/>
+      <stop offset="1" stop-color="#4a20c2"/>
+    </linearGradient>
+    <linearGradient id="logo-mountain2-face" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#bc62f6"/>
+      <stop offset="1" stop-color="#a855ee"/>
+    </linearGradient>
+    <linearGradient id="logo-mountain2-spike" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2c1690"/>
+      <stop offset="1" stop-color="#241270"/>
+    </linearGradient>
+    <linearGradient id="logo-mountain2-slope" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e6a8fa"/>
+      <stop offset="1" stop-color="#c050df"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#logo-mountain2-foot)" d="M50 560L75 541 122 516 165 512 206 478 252 434 300 391 346 351 398 314 440 296 479 278 496 285 470 321 438 336 390 374 345 401 305 454 266 510 234 537 180 553 118 563 62 566Z"/>
+  <path fill="url(#logo-mountain2-ridge)" d="M527 301L540 232 566 192 604 150 646 111 698 76 672 128 632 172 602 214 570 266Z"/>
+  <path fill="url(#logo-mountain2-body)" fill-rule="evenodd" d="M257 562L286 514 320 455 346 418 376 388 427 355 421 385 446 383 480 348 507 318 536 298 568 264 526 358 511 420 522 439 541 431 571 385 601 314 632 248 666 178 696 108 714 60 734 66 726 110 712 128 719 188 722 245 720 316 704 319 691 332 682 388 668 478 652 561ZM618 429L596 455 571 510 576 526 594 521 609 494Z"/>
+  <path fill="url(#logo-mountain2-face)" d="M709 110L739 175 766 209 796 254 823 304 843 368 861 440 839 445 812 416 790 385 765 362 745 346 727 305 720 316 722 245 719 188Z"/>
+  <path fill="url(#logo-mountain2-spike)" d="M720 316L727 305 745 346 765 362 767 448 746 446 737 392 724 354Z"/>
+  <path fill="url(#logo-mountain2-slope)" d="M714 60L737 64 764 108 799 149 840 199 889 224 926 261 961 320 992 346 1029 343 1076 385 1131 441 1186 486 1241 515 1291 538 1337 560 1340 567 1231 569 1169 556 1099 521 1039 485 989 444 940 446 906 406 872 350 841 289 806 234 774 179 743 138 724 101Z"/>
+</svg>
