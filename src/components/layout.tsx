@@ -15,7 +15,7 @@ const Layout = ({ children }: PropsWithChildren) => {
       {isHome && <IntroLandscape />}
       <main
         className={cn(
-          "container relative z-10 mx-auto min-h-[60vh] px-4 pb-12",
+          "container relative z-10 mx-auto min-h-[60vh] px-7 pb-12",
           isHome ? "-mt-12" : "py-8",
         )}
       >

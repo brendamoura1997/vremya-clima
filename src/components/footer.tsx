@@ -7,7 +7,7 @@ const circleButton =
 
 export function Footer() {
   return (
-    <footer className="container mx-auto px-4 pb-10">
+    <footer className="container px-7 pb-5">
       <div className="relative overflow-hidden rounded-3xl border bg-card/80 shadow-lg shadow-primary/5 backdrop-blur-sm">
         <div
           aria-hidden="true"
@@ -33,7 +33,7 @@ export function Footer() {
             <p className="text-sm font-semibold">
               Previsão do tempo com tecnologia de ponta
             </p>
-            <p className="text-xs text-primary">
+            <p className="text-xs text-muted-foreground">
               Dados atualizados em tempo real para você planejar seu dia com
               mais segurança.
             </p>
@@ -62,7 +62,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <p className="mt-6 text-center text-sm text-gray-400">
+      <p className="mt-3 text-center text-sm text-gray-400">
         Website by Brenda Moura
       </p>
     </footer>
