@@ -21,21 +21,21 @@ const Header = () => {
     <header
       className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
         solid
-          ? "bg-background/70 backdrop-blur-lg"
+          ? "bg-background backdrop-blur-lg"
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+      <div className="container mx-auto flex h-20 items-center justify-between px-7">
         <Link to={"/"} className="shrink-0">
           <img
             src="/logo.svg"
             alt="Vremya logo"
-            className="h-8 w-auto md:h-11 dark:hidden"
+            className="h-8 w-auto md:h-9 dark:hidden"
           />
           <img
             src="/logo2.svg"
             alt="Vremya logo"
-            className="hidden h-8 w-auto md:h-11 dark:block"
+            className="hidden h-8 w-auto md:h-9 dark:block"
           />
         </Link>
 

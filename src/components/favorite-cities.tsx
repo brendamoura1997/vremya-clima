@@ -107,7 +107,8 @@ export function FavoriteCities() {
             <Button
               variant="outline"
               onClick={openCitySearch}
-              className="h-14 shrink-0 rounded-full border-primary bg-card/60 px-6 text-primary hover:bg-primary/10 hover:text-primary dark:border-primary dark:bg-card/40"
+              className="h-14 shrink-0 rounded-full border-primary bg-card/60 px-6 text-primary hover:bg-primary/10 hover:text-primary 
+              dark:border-primary dark:bg-card/40"
             >
               <Plus className="h-4 w-4" />
               Adicionar cidade
@@ -118,7 +119,7 @@ export function FavoriteCities() {
         <Button
           variant="outline"
           onClick={openCitySearch}
-          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-6 shadow-md md:inline-flex"
+          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-2 w-35 shadow-md md:inline-flex"
         >
           Ver todos
           <ChevronRight className="h-4 w-4" />

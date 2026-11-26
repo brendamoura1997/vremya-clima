@@ -67,7 +67,7 @@ export function WeatherDetails({ data }: WeatherDetailsProps) {
           {details.map((detail) => (
             <div
               key={detail.title}
-              className="flex items-center gap-4 rounded-2xl border bg-muted/50 p-4"
+              className="flex items-center gap-4 rounded-2xl border bg-muted/50 p-4 font-semibold"
             >
               <div
                 className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${detail.background}`}
