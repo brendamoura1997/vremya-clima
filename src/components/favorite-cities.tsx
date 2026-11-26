@@ -6,6 +6,7 @@ import { X, Loader2, Star, Plus, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavorite } from "@/hooks/use-favorite";
 import { toast } from "sonner";
+import { WeatherIcon } from "@/components/weather-icon";
 
 interface FavoriteCityTabletProps {
   id: string;
@@ -60,9 +61,9 @@ function FavoriteCityTablet({
         </div>
       ) : weather ? (
         <>
-          <img
-            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
-            alt={weather.weather[0].description}
+          <WeatherIcon
+            code={weather.weather[0].icon}
+            label={weather.weather[0].description}
             className="h-10 w-10 shrink-0"
           />
           <div className="min-w-0 leading-tight">

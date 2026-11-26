@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, Calendar, Droplets, Wind } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { ForecastData } from "@/api/types";
+import { WeatherIcon } from "./weather-icon";
 
 interface WeatherForecastProps {
   data: ForecastData;
@@ -64,7 +65,7 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-base">
           <Calendar className="h-5 w-5 text-primary" />
-          Clima para os próximos 5 dias
+          Clima para os próximos dias
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -75,9 +76,9 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
               className="grid grid-cols-3 items-center gap-y-2 py-3 sm:grid-cols-[minmax(0,1fr)_8.5rem_4.5rem_6rem] sm:gap-x-4"
             >
               <div className="col-span-3 flex items-center gap-3 sm:col-span-1">
-                <img
-                  src={`https://openweathermap.org/img/wn/${day.weather.icon.replace("n", "d")}.png`}
-                  alt={day.weather.description}
+                <WeatherIcon
+                  code={day.weather.icon.replace("n", "d")}
+                  label={day.weather.description}
                   className="h-10 w-10 shrink-0"
                 />
                 <div>
