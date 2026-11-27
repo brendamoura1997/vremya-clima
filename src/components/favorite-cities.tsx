@@ -29,7 +29,7 @@ function FavoriteCityTablet({
   const { formatTemperature } = useSettings();
 
   const handleClick = () => {
-    navigate(`/city/${name}?lat=${lat}&lon=${lon}`);
+    void navigate(`/city/${name}?lat=${lat}&lon=${lon}`);
   };
 
   return (
