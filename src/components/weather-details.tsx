@@ -7,7 +7,7 @@ interface WeatherDetailsProps {
   data: WeatherData;
 }
 
-export function WeatherDetails({ data }: WeatherDetailsProps) {
+export function WeatherDetails({ data }: Readonly<WeatherDetailsProps>) {
   const { wind, main, sys } = data;
   const { formatTime: formatClock } = useSettings();
 

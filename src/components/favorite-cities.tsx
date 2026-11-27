@@ -23,7 +23,7 @@ function FavoriteCityTablet({
   lat,
   lon,
   onRemove,
-}: FavoriteCityTabletProps) {
+}: Readonly<FavoriteCityTabletProps>) {
   const navigate = useNavigate();
   const { data: weather, isLoading } = useWeatherQuery({ lat, lon });
   const { formatTemperature } = useSettings();
@@ -122,7 +122,7 @@ export function FavoriteCities() {
         <Button
           variant="outline"
           onClick={openCitySearch}
-          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-2 w-35 shadow-md md:inline-flex"
+          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-2 w-35 shadow-md lg:inline-flex"
         >
           Ver todos
           <ChevronRight className="h-4 w-4" />
