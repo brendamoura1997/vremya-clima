@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addDays, format, setHours, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -50,7 +50,60 @@ interface PeakLabelProps {
   value: string;
 }
 
+interface DayTickProps {
+  x?: number;
+  y?: number;
+  payload?: { value: number };
+}
+
 type RangeValue = "24h" | "5d";
+
+const MOBILE_QUERY = "(max-width: 639px)";
+const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      typeof window !== "undefined" && window.matchMedia(MOBILE_QUERY).matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_QUERY);
+    const handleChange = (event: MediaQueryListEvent) =>
+      setIsMobile(event.matches);
+
+    setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  return isMobile;
+}
+
+const DayTick = ({ x = 0, y = 0, payload }: DayTickProps) => {
+  if (!payload) return null;
+
+  const date = new Date(payload.value);
+  const weekday = WEEKDAYS_SHORT[date.getDay()];
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text textAnchor="middle" fontSize={12}>
+        <tspan x={0} dy={16} style={{ fill: "var(--muted-foreground)" }}>
+          {weekday}
+        </tspan>
+        <tspan
+          x={0}
+          dy={14}
+          fontWeight={600}
+          style={{ fill: "var(--muted-foreground)" }}
+        >
+          {format(date, "d")}
+        </tspan>
+      </text>
+    </g>
+  );
+};
 
 const PeakLabel = ({ viewBox, value }: PeakLabelProps) => {
   const cx = viewBox?.cx ?? (viewBox?.x ?? 0) + (viewBox?.width ?? 0) / 2;
@@ -247,6 +300,7 @@ function HourlyChart({ data }: { data: ForecastData }) {
 
 function FiveDayChart({ data }: { data: ForecastData }) {
   const { convertTemperature, temperatureSymbol, formatTime } = useSettings();
+  const isMobile = useIsMobile();
 
   const chartData: FiveDayChartData[] = data.list.map((item) => ({
     ts: item.dt * 1000,
@@ -285,7 +339,12 @@ function FiveDayChart({ data }: { data: ForecastData }) {
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
-            margin={{ top: 40, right: 32, left: 0, bottom: 0 }}
+            margin={{
+              top: 40,
+              right: isMobile ? 20 : 32,
+              left: 0,
+              bottom: 0,
+            }}
           >
             <defs>
               <linearGradient id="fiveDayFill" x1="0" y1="0" x2="0" y2="1">
@@ -311,7 +370,10 @@ function FiveDayChart({ data }: { data: ForecastData }) {
               scale="time"
               domain={[first, last]}
               ticks={dayTicks}
+              interval={0}
               tickFormatter={formatDayTick}
+              tick={isMobile ? <DayTick /> : undefined}
+              height={isMobile ? 46 : 30}
               stroke="var(--muted-foreground)"
               fontSize={12}
               tickLine={true}
@@ -322,7 +384,7 @@ function FiveDayChart({ data }: { data: ForecastData }) {
               fontSize={12}
               tickLine={true}
               axisLine={true}
-              width={48}
+              width={isMobile ? 44 : 48}
               domain={[yMin, yMax]}
               allowDecimals={false}
               tickFormatter={(value) => `${value}${temperatureSymbol}`}
@@ -427,8 +489,8 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
   const [range, setRange] = useState<RangeValue>("24h");
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+    <Card className="h-full px-1">
+      <CardHeader className="flex flex-wrap items-center justify-between gap-3 px-2 md:px-5">
         <CardTitle className="flex items-center gap-3 text-base">
           <TrendingUp className="h-5 w-5 text-primary" />
           {range === "5d"
@@ -446,7 +508,7 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
           className="w-full sm:w-44"
         />
       </CardHeader>
-      <CardContent className="flex-1">
+      <CardContent className="flex-1 px-1 md:px-5">
         {range === "5d" ? (
           <FiveDayChart data={data} />
         ) : (

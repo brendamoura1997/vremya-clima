@@ -1,6 +1,6 @@
 const IntroLandscape = () => {
   return (
-    <section className="relative -mt-20 h-[clamp(17rem,25.5vw,32rem)] overflow-hidden">
+    <section className="relative -mt-20 h-80 md:h-90 overflow-hidden">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[url('/landscape-light.png')] bg-cover bg-[position:58%_100%] bg-no-repeat [mask-image:linear-gradient(to_bottom,black_82%,transparent)] dark:bg-[url('/landscape-dark.png')]"

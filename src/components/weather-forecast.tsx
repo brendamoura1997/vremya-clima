@@ -26,7 +26,7 @@ interface DailyForecast {
   };
 }
 
-export function WeatherForecast({ data }: WeatherForecastProps) {
+export function WeatherForecast({ data }: Readonly<WeatherForecastProps>) {
   const { formatTemperature } = useSettings();
 
   // Agrupa o clima por dia e pega a temp min/max para o dia
