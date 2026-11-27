@@ -12,8 +12,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { format } from "date-fns";
 import type { ForecastData } from "@/api/types";
+import { useSettings } from "@/context/settings-provider";
 
 interface HourlyTemperatureProps {
   data: ForecastData;
@@ -77,14 +77,16 @@ const PeakLabel = ({ viewBox, value }: PeakLabelProps) => {
 };
 
 export function HourlyTemperature({ data }: HourlyTemperatureProps) {
+  const { convertTemperature, temperatureSymbol, formatHour } = useSettings();
+
   //Pega os dados do clima de hoje  e formata para o chart
 
   const chartData: ChartData[] = data.list
     .slice(0, 8) // Pega as próximas 24 horas (intervalo de 3h)
     .map((item) => ({
-      time: format(new Date(item.dt * 1000), "HH'h'"), // formato unix, hour + am
-      temp: Math.round(item.main.temp),
-      feels_like: Math.round(item.main.feels_like),
+      time: formatHour(new Date(item.dt * 1000)), // formato unix, hour + am
+      temp: Math.round(convertTemperature(item.main.temp)),
+      feels_like: Math.round(convertTemperature(item.main.feels_like)),
     }));
 
   const values = chartData.flatMap((item) => [item.temp, item.feels_like]);
@@ -158,7 +160,7 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
                 width={48}
                 domain={[yMin, yMax]}
                 allowDecimals={false}
-                tickFormatter={(value) => `${value}°C`}
+                tickFormatter={(value) => `${value}${temperatureSymbol}`}
               />
               <Tooltip
                 cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
@@ -172,7 +174,8 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
                               Temperatura
                             </span>
                             <span className="font-bold">
-                              {payload[0].value}°C
+                              {payload[0].value}
+                              {temperatureSymbol}
                             </span>
                           </div>
                           <div className="flex flex-col">
@@ -180,7 +183,8 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
                               Sensação térmica
                             </span>
                             <span className="font-bold">
-                              {payload[1].value}°C
+                              {payload[1].value}
+                              {temperatureSymbol}
                             </span>
                           </div>
                         </div>
@@ -223,7 +227,7 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
                 fill="var(--primary)"
                 stroke="var(--card)"
                 strokeWidth={2}
-                label={<PeakLabel value={`${peak.temp}°C`} />}
+                label={<PeakLabel value={`${peak.temp}${temperatureSymbol}`} />}
               />
             </ComposedChart>
           </ResponsiveContainer>
