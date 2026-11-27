@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CitySearch } from "./city-search";
-import { ThemeToggle } from "./theme-toggle";
+import { SettingsMenu } from "./settings-menu";
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -41,7 +41,7 @@ const Header = () => {
 
         <div className="flex items-center gap-3 md:gap-4">
           <CitySearch />
-          <ThemeToggle />
+          <SettingsMenu />
         </div>
       </div>
     </header>
