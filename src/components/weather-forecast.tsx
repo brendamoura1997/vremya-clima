@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { ForecastData } from "@/api/types";
 import { WeatherIcon } from "./weather-icon";
+import { useSettings } from "@/context/settings-provider";
 
 interface WeatherForecastProps {
   data: ForecastData;
@@ -24,6 +25,8 @@ interface DailyForecast {
 }
 
 export function WeatherForecast({ data }: WeatherForecastProps) {
+  const { formatTemperature } = useSettings();
+
   // Agrupa o clima por dia e pega a temp min/max para o dia
   const dailyForecasts = data.list.reduce(
     (acc, forecast) => {
@@ -58,7 +61,8 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
   const nextDays = Object.values(dailyForecasts).slice(1, 6);
 
   // Formata a temperatura
-  const formatTemp = (temp: number) => `${Math.round(temp)}°C`;
+  const formatTemp = (temp: number) =>
+    formatTemperature(temp, { withUnit: true });
 
   return (
     <Card className="h-full">

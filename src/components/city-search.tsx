@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSearchHistory } from "@/hooks/use-search-history";
 import { useFavorite } from "@/hooks/use-favorite";
+import { useSettings } from "@/context/settings-provider";
 
 export function CitySearch() {
   const [open, setOpen] = useState(false);
@@ -26,6 +27,7 @@ export function CitySearch() {
   const { data: locations, isLoading } = useLocationSearch(query);
   const { favorites } = useFavorite();
   const { history, clearHistory, addToHistory } = useSearchHistory();
+  const { formatTime } = useSettings();
 
   useEffect(() => {
     const handleOpen = () => setOpen(true);
@@ -40,8 +42,8 @@ export function CitySearch() {
     addToHistory.mutate({
       query,
       name,
-      lat: parseFloat(lat),
-      lon: parseFloat(lon),
+      lat: Number.parseFloat(lat),
+      lon: Number.parseFloat(lon),
       country,
     });
 
@@ -167,9 +169,10 @@ export function CitySearch() {
                         , {location.country}
                       </span>
                       <span className="ml-auto text-xs text-muted-foreground">
-                        {format(location.searchedAt, "d MMM, HH:mm", {
+                        {format(location.searchedAt, "d MMM", {
                           locale: ptBR,
                         })}
+                        , {formatTime(new Date(location.searchedAt))}
                       </span>
                     </CommandItem>
                   ))}

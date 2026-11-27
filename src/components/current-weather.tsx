@@ -2,21 +2,27 @@ import { Card } from "./ui/card";
 import { ArrowDown, ArrowUp, Droplets, Thermometer, Wind } from "lucide-react";
 import type { WeatherData, GeocodingResponse } from "@/api/types";
 import { WeatherIcon } from "./weather-icon";
+import { useSettings } from "@/context/settings-provider";
 
 interface CurrentWeatherProps {
   data: WeatherData;
   locationName?: GeocodingResponse;
 }
 
-export function CurrentWeather({ data, locationName }: CurrentWeatherProps) {
+export function CurrentWeather({
+  data,
+  locationName,
+}: Readonly<CurrentWeatherProps>) {
   const {
     weather: [currentWeather],
     main: { temp, feels_like, temp_min, temp_max, humidity },
     wind: { speed },
   } = data;
+  const { convertTemperature, formatTemperature, temperatureSymbol } =
+    useSettings();
 
   // Formatar temperatura
-  const formatTemp = (temp: number) => `${Math.round(temp)}°`;
+  const formatTemp = (temp: number) => formatTemperature(temp);
 
   return (
     <Card className="h-full gap-0 overflow-hidden py-0">
@@ -36,14 +42,14 @@ export function CurrentWeather({ data, locationName }: CurrentWeatherProps) {
                 </span>
               </h2>
             )}
-            <p className="flex items-start text-7xl leading-none font-extrabold tracking-tighter">
-              {Math.round(temp)}
+            <p className="flex items-start text-7xl leading-none font-extrabold ">
+              {Math.round(convertTemperature(temp))}
               <span className="ml-1 mt-1 text-3xl font-medium tracking-normal">
-                °C
+                {temperatureSymbol}
               </span>
             </p>
             <p className="text-sm font-medium">
-              Sensação: {formatTemp(feels_like)}C
+              Sensação: {formatTemperature(feels_like, { withUnit: true })}
             </p>
           </div>
           <WeatherIcon
