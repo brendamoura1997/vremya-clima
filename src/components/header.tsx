@@ -25,17 +25,17 @@ const Header = () => {
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex h-20 items-center justify-between px-7">
+      <div className="container mx-auto flex h-20 items-center justify-between px-3 md:px-7">
         <Link to={"/"} className="shrink-0">
           <img
             src="/logo.svg"
             alt="Vremya logo"
-            className="h-8 w-auto md:h-9 dark:hidden"
+            className="h-6 md:h-8 w-auto dark:hidden"
           />
           <img
             src="/logo2.svg"
             alt="Vremya logo"
-            className="hidden h-8 w-auto md:h-9 dark:block"
+            className="hidden h-6 md:h-8 w-auto dark:block"
           />
         </Link>
 

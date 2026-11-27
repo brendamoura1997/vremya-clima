@@ -16,7 +16,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-card/80 text-primary shadow-md backdrop-blur transition-colors hover:bg-card",
+        "flex h-9 w-9 md:h-11 md:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-card/80 text-primary shadow-md backdrop-blur transition-colors hover:bg-card",
         className,
       )}
     >
