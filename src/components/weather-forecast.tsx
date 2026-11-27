@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { ArrowDown, ArrowUp, Droplets, Wind } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, Droplets, Wind } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { ForecastData } from "@/api/types";
+import { WeatherIcon } from "./weather-icon";
 
 interface WeatherForecastProps {
   data: ForecastData;
@@ -60,29 +61,39 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
   const formatTemp = (temp: number) => `${Math.round(temp)}°C`;
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle>Clima para os próximos 5 dias</CardTitle>
+        <CardTitle className="flex items-center gap-3 text-base">
+          <Calendar className="h-5 w-5 text-primary" />
+          Clima para os próximos dias
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <div className="divide-y">
           {nextDays.map((day) => (
             <div
               key={day.date}
-              className="grid grid-cols-3 items-center gap-4 rounded-lg border p-4"
+              className="grid grid-cols-3 items-center gap-y-2 py-3 sm:grid-cols-[minmax(0,1fr)_8.5rem_4.5rem_6rem] sm:gap-x-4"
             >
-              <div>
-                <p className="font-medium capitalize">
-                  {format(new Date(day.date * 1000), "EEE, d MMM", {
-                    locale: ptBR,
-                  })}
-                </p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {day.weather.description}
-                </p>
+              <div className="col-span-3 flex items-center gap-3 sm:col-span-1">
+                <WeatherIcon
+                  code={day.weather.icon.replace("n", "d")}
+                  label={day.weather.description}
+                  className="h-10 w-10 shrink-0"
+                />
+                <div>
+                  <p className="text-sm font-medium capitalize">
+                    {format(new Date(day.date * 1000), "EEE, d MMM", {
+                      locale: ptBR,
+                    })}
+                  </p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {day.weather.description}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex justify-center gap-4">
+              <div className="flex items-center gap-3 text-sm font-medium">
                 <span className="flex items-center text-blue-500">
                   <ArrowDown className="mr-1 h-4 w-4" />
                   {formatTemp(day.temp_min)}
@@ -93,12 +104,12 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
                 </span>
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div className="col-span-3 flex items-end gap-3 sm:col-span-1">
                 <span className="flex items-center gap-1">
                   <Droplets className="h-4 w-4 text-blue-500" />
                   <span className="text-sm">{day.humidity}%</span>
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center justify-end gap-1 sm:justify-start">
                   <Wind className="h-4 w-4 text-blue-500" />
                   <span className="text-sm">{day.wind}m/s</span>
                 </span>

@@ -53,11 +53,14 @@ export function CitySearch() {
     <>
       <Button
         variant="outline"
-        className="relative justify-start text-sm text-muted-foreground pr-12 w-40 lg:w-64"
+        aria-label="Procurar cidades"
+        className="relative h-9 w-9 justify-center overflow-hidden rounded-full border-0 bg-card/80 px-0 text-sm font-normal text-search-input-text
+        shadow-md backdrop-blur hover:bg-card dark:bg-[#0E0E1B] dark:hover:bg-[#0E0E1B] dark:border dark:border-[#3b3b5e] 
+        light:hover:bg-card/100 sm:w-64 sm:justify-start sm:px-4 lg:w-[26rem]"
         onClick={() => setOpen(true)}
       >
-        <Search className="mr-2 h-4 w-4" />
-        Procurar cidades...
+        <Search className="h-4 w-4 text-search-input-text" />
+        <span className="hidden sm:inline">Procurar cidades...</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Command>

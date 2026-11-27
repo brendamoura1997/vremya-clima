@@ -11,7 +11,7 @@ import {
   useReverseGeocodeQuery,
   useWeatherQuery,
 } from "@/hooks/use-weather";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, MapPin, RefreshCw } from "lucide-react";
 import { FavoriteCities } from "@/components/favorite-cities";
 import { LocationPrompt } from "@/components/location-prompt";
 
@@ -73,17 +73,20 @@ const WeatherDashboard = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* CIDADES FAVORITAS */}
       <FavoriteCities />
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight">MEU LOCAL</h1>
+        <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight">
+          <MapPin className="h-5 w-5 text-blue-500" />
+          Meu local
+        </h2>
         <Button
           variant={"outline"}
           size={"icon"}
           onClick={handleRefresh}
           disabled={weatherQuery.isFetching || forecastQuery.isFetching}
-          className="cursor-pointer"
+          className="cursor-pointer rounded-xl bg-card/80 shadow-sm"
         >
           <RefreshCw
             className={`h-4 w-4 ${
@@ -95,7 +98,7 @@ const WeatherDashboard = () => {
 
       {/* CLIMA ATUAL E POR HORÁRIO */}
       <div className="grid gap-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]">
           <CurrentWeather
             data={weatherQuery.data}
             locationName={locationName}
@@ -103,7 +106,7 @@ const WeatherDashboard = () => {
           <HourlyTemperature data={forecastQuery.data} />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 items-start">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <WeatherDetails data={weatherQuery.data} />
           <WeatherForecast data={forecastQuery.data} />
         </div>
