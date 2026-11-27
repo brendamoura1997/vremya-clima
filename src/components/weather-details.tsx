@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Sunrise, Sunset, Compass, Gauge, Wind } from "lucide-react";
-import { format } from "date-fns";
 import type { WeatherData } from "@/api/types";
+import { useSettings } from "@/context/settings-provider";
 
 interface WeatherDetailsProps {
   data: WeatherData;
@@ -9,10 +9,11 @@ interface WeatherDetailsProps {
 
 export function WeatherDetails({ data }: WeatherDetailsProps) {
   const { wind, main, sys } = data;
+  const { formatTime: formatClock } = useSettings();
 
   // Formata o tempo com o date-fns
   const formatTime = (timestamp: number) => {
-    return format(new Date(timestamp * 1000), "HH:mm");
+    return formatClock(new Date(timestamp * 1000));
   };
 
   // Converte o grau do vento em direção

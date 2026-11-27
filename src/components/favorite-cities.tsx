@@ -5,6 +5,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { X, Loader2, Star, Plus, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavorite } from "@/hooks/use-favorite";
+import { useSettings } from "@/context/settings-provider";
 import { toast } from "sonner";
 import { WeatherIcon } from "@/components/weather-icon";
 
@@ -25,6 +26,7 @@ function FavoriteCityTablet({
 }: FavoriteCityTabletProps) {
   const navigate = useNavigate();
   const { data: weather, isLoading } = useWeatherQuery({ lat, lon });
+  const { formatTemperature } = useSettings();
 
   const handleClick = () => {
     navigate(`/city/${name}?lat=${lat}&lon=${lon}`);
@@ -69,7 +71,7 @@ function FavoriteCityTablet({
           <div className="min-w-0 leading-tight">
             <p className="truncate text-sm font-medium">{name}</p>
             <p className="text-sm font-semibold">
-              {Math.round(weather.main.temp)}°C
+              {formatTemperature(weather.main.temp, { withUnit: true })}
             </p>
           </div>
         </>
