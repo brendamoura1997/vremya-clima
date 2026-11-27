@@ -14,6 +14,8 @@ interface DailyForecast {
   date: number;
   temp_min: number;
   temp_max: number;
+  temp_sum: number;
+  temp_count: number;
   humidity: number;
   wind: number;
   weather: {
@@ -24,7 +26,7 @@ interface DailyForecast {
   };
 }
 
-export function WeatherForecast({ data }: WeatherForecastProps) {
+export function WeatherForecast({ data }: Readonly<WeatherForecastProps>) {
   const { formatTemperature } = useSettings();
 
   // Agrupa o clima por dia e pega a temp min/max para o dia
@@ -36,6 +38,8 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
         acc[date] = {
           temp_min: forecast.main.temp_min,
           temp_max: forecast.main.temp_max,
+          temp_sum: forecast.main.temp,
+          temp_count: 1,
           humidity: forecast.main.humidity,
           wind: forecast.wind.speed,
           weather: forecast.weather[0],
@@ -50,6 +54,8 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
           acc[date].temp_max,
           forecast.main.temp_max,
         );
+        acc[date].temp_sum += forecast.main.temp;
+        acc[date].temp_count += 1;
       }
 
       return acc;
@@ -85,7 +91,7 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
                   label={day.weather.description}
                   className="h-10 w-10 shrink-0"
                 />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium capitalize">
                     {format(new Date(day.date * 1000), "EEE, d MMM", {
                       locale: ptBR,
@@ -95,6 +101,12 @@ export function WeatherForecast({ data }: WeatherForecastProps) {
                     {day.weather.description}
                   </p>
                 </div>
+                <p
+                  className="shrink-0 text-sm font-bold leading-none"
+                  title="Temperatura média do dia"
+                >
+                  {formatTemp(day.temp_sum / day.temp_count)}
+                </p>
               </div>
 
               <div className="flex items-center gap-3 text-sm font-medium">
