@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { addDays, format, setHours, startOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   ComposedChart,
@@ -14,6 +17,8 @@ import {
 import { TrendingUp } from "lucide-react";
 import type { ForecastData } from "@/api/types";
 import { useSettings } from "@/context/settings-provider";
+import { ToggleBar } from "@/components/ui/toggle-bar";
+import { WeatherIcon } from "./weather-icon";
 
 interface HourlyTemperatureProps {
   data: ForecastData;
@@ -23,6 +28,14 @@ interface ChartData {
   time: string;
   temp: number;
   feels_like: number;
+}
+
+interface FiveDayChartData {
+  ts: number;
+  temp: number;
+  feels_like: number;
+  icon: string;
+  description: string;
 }
 
 interface PeakLabelProps {
@@ -37,11 +50,7 @@ interface PeakLabelProps {
   value: string;
 }
 
-const RANGES = [
-  { label: "24h", enabled: true },
-  { label: "7 dias", enabled: false },
-  { label: "30 dias", enabled: false },
-];
+type RangeValue = "24h" | "5d";
 
 const PeakLabel = ({ viewBox, value }: PeakLabelProps) => {
   const cx = viewBox?.cx ?? (viewBox?.x ?? 0) + (viewBox?.width ?? 0) / 2;
@@ -76,7 +85,31 @@ const PeakLabel = ({ viewBox, value }: PeakLabelProps) => {
   );
 };
 
-export function HourlyTemperature({ data }: HourlyTemperatureProps) {
+function ChartLegend() {
+  return (
+    <ul
+      aria-label="Legenda do gráfico"
+      className="flex flex-wrap  gap-x-5 gap-y-1 text-xs justify-end font-medium text-muted-foreground mr-5.5"
+    >
+      <li className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="h-[3px] w-5 shrink-0 rounded-full bg-primary"
+        />
+        Temperatura
+      </li>
+      <li className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="w-5 shrink-0 border-t-2 border-dashed border-foreground/60"
+        />
+        Sensação térmica
+      </li>
+    </ul>
+  );
+}
+
+function HourlyChart({ data }: { data: ForecastData }) {
   const { convertTemperature, temperatureSymbol, formatHour } = useSettings();
 
   //Pega os dados do clima de hoje  e formata para o chart
@@ -95,143 +128,330 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
   const peak = chartData.reduce((a, b) => (b.temp > a.temp ? b : a));
 
   return (
+    <div className="space-y-3">
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={chartData}
+            margin={{ top: 40, right: 24, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  style={{ stopColor: "var(--primary)", stopOpacity: 0.35 }}
+                />
+                <stop
+                  offset="100%"
+                  style={{ stopColor: "var(--primary)", stopOpacity: 0.02 }}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              stroke="var(--border)"
+              strokeDasharray="0"
+              vertical
+              horizontal
+            />
+            <XAxis
+              dataKey="time"
+              stroke="var(--muted-foreground)"
+              fontSize={12}
+              tickLine={true}
+              axisLine={true}
+            />
+            <YAxis
+              stroke="var(--muted-foreground)"
+              fontSize={12}
+              tickLine={true}
+              axisLine={true}
+              width={48}
+              domain={[yMin, yMax]}
+              allowDecimals={false}
+              tickFormatter={(value) => `${value}${temperatureSymbol}`}
+            />
+            <Tooltip
+              cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-xl border bg-popover p-2 shadow-md">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Temperatura
+                          </span>
+                          <span className="font-bold">
+                            {payload[0].value}
+                            {temperatureSymbol}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Sensação térmica
+                          </span>
+                          <span className="font-bold">
+                            {payload[1].value}
+                            {temperatureSymbol}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="temp"
+              stroke="var(--primary)"
+              strokeWidth={2.5}
+              fill="url(#tempFill)"
+              dot={false}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="feels_like"
+              stroke="var(--foreground)"
+              strokeOpacity={0.6}
+              strokeWidth={1.5}
+              dot={false}
+              strokeDasharray="5 5"
+            />
+            <ReferenceLine
+              segment={[
+                { x: peak.time, y: peak.temp },
+                { x: peak.time, y: yMin },
+              ]}
+              stroke="var(--primary)"
+              strokeDasharray="4 4"
+            />
+            <ReferenceDot
+              x={peak.time}
+              y={peak.temp}
+              r={5}
+              fill="var(--primary)"
+              stroke="var(--card)"
+              strokeWidth={2}
+              label={<PeakLabel value={`${peak.temp}${temperatureSymbol}`} />}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <ChartLegend />
+    </div>
+  );
+}
+
+function FiveDayChart({ data }: { data: ForecastData }) {
+  const { convertTemperature, temperatureSymbol, formatTime } = useSettings();
+
+  const chartData: FiveDayChartData[] = data.list.map((item) => ({
+    ts: item.dt * 1000,
+    temp: Math.round(convertTemperature(item.main.temp)),
+    feels_like: Math.round(convertTemperature(item.main.feels_like)),
+    icon: item.weather[0].icon,
+    description: item.weather[0].description,
+  }));
+
+  const values = chartData.flatMap((item) => [item.temp, item.feels_like]);
+  const yMin = Math.floor(Math.min(...values)) - 2;
+  const yMax = Math.ceil(Math.max(...values)) + 2;
+  const peak = chartData.reduce((a, b) => (b.temp > a.temp ? b : a));
+
+  const first = chartData[0].ts;
+  const last = chartData[chartData.length - 1].ts;
+
+  const dayTicks: number[] = [];
+  for (
+    let day = startOfDay(new Date(first));
+    day.getTime() <= last;
+    day = addDays(day, 1)
+  ) {
+    const noon = setHours(day, 12).getTime();
+    if (noon >= first && noon <= last) dayTicks.push(noon);
+  }
+
+  const formatDayTick = (value: number) => {
+    const label = format(new Date(value), "EEE, d", { locale: ptBR });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={chartData}
+            margin={{ top: 40, right: 32, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="fiveDayFill" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  style={{ stopColor: "var(--primary)", stopOpacity: 0.35 }}
+                />
+                <stop
+                  offset="100%"
+                  style={{ stopColor: "var(--primary)", stopOpacity: 0.02 }}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              stroke="var(--border)"
+              strokeDasharray="0"
+              vertical
+              horizontal
+            />
+            <XAxis
+              type="number"
+              dataKey="ts"
+              scale="time"
+              domain={[first, last]}
+              ticks={dayTicks}
+              tickFormatter={formatDayTick}
+              stroke="var(--muted-foreground)"
+              fontSize={12}
+              tickLine={true}
+              axisLine={true}
+            />
+            <YAxis
+              stroke="var(--muted-foreground)"
+              fontSize={12}
+              tickLine={true}
+              axisLine={true}
+              width={48}
+              domain={[yMin, yMax]}
+              allowDecimals={false}
+              tickFormatter={(value) => `${value}${temperatureSymbol}`}
+            />
+            <Tooltip
+              cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const item = payload[0].payload as FiveDayChartData;
+                  const date = new Date(item.ts);
+                  return (
+                    <div className="space-y-2 rounded-xl border bg-popover p-3 shadow-md">
+                      <div className="flex items-center gap-2">
+                        <WeatherIcon
+                          code={item.icon}
+                          label={item.description}
+                          className="h-8 w-8 shrink-0"
+                        />
+                        <div className="leading-tight">
+                          <p className="text-xs font-semibold capitalize">
+                            {format(date, "EEEE, d 'de' MMMM", {
+                              locale: ptBR,
+                            })}
+                            {" · "}
+                            {formatTime(date)}
+                          </p>
+                          <p className="text-[0.70rem] capitalize text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Temperatura
+                          </span>
+                          <span className="font-bold">
+                            {item.temp}
+                            {temperatureSymbol}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Sensação térmica
+                          </span>
+                          <span className="font-bold">
+                            {item.feels_like}
+                            {temperatureSymbol}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="temp"
+              stroke="var(--primary)"
+              strokeWidth={2.5}
+              fill="url(#fiveDayFill)"
+              dot={false}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="feels_like"
+              stroke="var(--foreground)"
+              strokeOpacity={0.6}
+              strokeWidth={1.5}
+              dot={false}
+              strokeDasharray="5 5"
+            />
+            <ReferenceLine
+              segment={[
+                { x: peak.ts, y: peak.temp },
+                { x: peak.ts, y: yMin },
+              ]}
+              stroke="var(--primary)"
+              strokeDasharray="4 4"
+            />
+            <ReferenceDot
+              x={peak.ts}
+              y={peak.temp}
+              r={5}
+              fill="var(--primary)"
+              stroke="var(--card)"
+              strokeWidth={2}
+              label={<PeakLabel value={`${peak.temp}${temperatureSymbol}`} />}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+      <ChartLegend />
+    </div>
+  );
+}
+
+export function HourlyTemperature({ data }: HourlyTemperatureProps) {
+  const [range, setRange] = useState<RangeValue>("24h");
+
+  return (
     <Card className="h-full">
       <CardHeader className="flex flex-wrap items-center justify-between gap-3">
         <CardTitle className="flex items-center gap-3 text-base">
           <TrendingUp className="h-5 w-5 text-primary" />
-          Temperatura de hoje
+          {range === "5d"
+            ? "Temperatura nos próximos 5 dias"
+            : "Temperatura de hoje"}
         </CardTitle>
-        <div className="flex items-center rounded-full bg-muted p-1">
-          {RANGES.map((range) => (
-            <button
-              key={range.label}
-              type="button"
-              disabled={!range.enabled}
-              aria-pressed={range.enabled}
-              title={range.enabled ? undefined : "Indisponível no momento"}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                range.enabled
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "cursor-not-allowed text-muted-foreground opacity-60"
-              }`}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
+        <ToggleBar
+          ariaLabel="Selecionar período do gráfico"
+          value={range}
+          onChange={setRange}
+          options={[
+            { value: "24h", label: "24h" },
+            { value: "5d", label: "5 dias" },
+          ]}
+          className="w-full sm:w-44"
+        />
       </CardHeader>
       <CardContent className="flex-1">
-        <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={chartData}
-              margin={{ top: 40, right: 24, left: 0, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="0%"
-                    style={{ stopColor: "var(--primary)", stopOpacity: 0.35 }}
-                  />
-                  <stop
-                    offset="100%"
-                    style={{ stopColor: "var(--primary)", stopOpacity: 0.02 }}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                stroke="var(--border)"
-                strokeDasharray="0"
-                vertical
-                horizontal
-              />
-              <XAxis
-                dataKey="time"
-                stroke="var(--muted-foreground)"
-                fontSize={12}
-                tickLine={true}
-                axisLine={true}
-              />
-              <YAxis
-                stroke="var(--muted-foreground)"
-                fontSize={12}
-                tickLine={true}
-                axisLine={true}
-                width={48}
-                domain={[yMin, yMax]}
-                allowDecimals={false}
-                tickFormatter={(value) => `${value}${temperatureSymbol}`}
-              />
-              <Tooltip
-                cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="rounded-xl border bg-popover p-2 shadow-md">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">
-                              Temperatura
-                            </span>
-                            <span className="font-bold">
-                              {payload[0].value}
-                              {temperatureSymbol}
-                            </span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">
-                              Sensação térmica
-                            </span>
-                            <span className="font-bold">
-                              {payload[1].value}
-                              {temperatureSymbol}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="temp"
-                stroke="var(--primary)"
-                strokeWidth={2.5}
-                fill="url(#tempFill)"
-                dot={false}
-                activeDot={{ r: 5 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="feels_like"
-                stroke="var(--foreground)"
-                strokeOpacity={0.6}
-                strokeWidth={1.5}
-                dot={false}
-                strokeDasharray="5 5"
-              />
-              <ReferenceLine
-                segment={[
-                  { x: peak.time, y: peak.temp },
-                  { x: peak.time, y: yMin },
-                ]}
-                stroke="var(--primary)"
-                strokeDasharray="4 4"
-              />
-              <ReferenceDot
-                x={peak.time}
-                y={peak.temp}
-                r={5}
-                fill="var(--primary)"
-                stroke="var(--card)"
-                strokeWidth={2}
-                label={<PeakLabel value={`${peak.temp}${temperatureSymbol}`} />}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        {range === "5d" ? (
+          <FiveDayChart data={data} />
+        ) : (
+          <HourlyChart data={data} />
+        )}
       </CardContent>
     </Card>
   );
