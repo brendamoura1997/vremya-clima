@@ -9,7 +9,7 @@ interface FavoriteButtonProps {
   data: WeatherData;
 }
 
-export function FavoriteButton({ data }: FavoriteButtonProps) {
+export function FavoriteButton({ data }: Readonly<FavoriteButtonProps>) {
   const { addFavorite, removeFavorite, isFavorite } = useFavorite();
   const isCurrentlyFavorite = isFavorite(data.coord.lat, data.coord.lon);
 

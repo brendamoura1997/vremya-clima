@@ -56,6 +56,19 @@ interface DayTickProps {
   payload?: { value: number };
 }
 
+interface HourlyTooltipProps {
+  active?: boolean;
+  payload?: ReadonlyArray<{ value?: number | string }>;
+  temperatureSymbol: string;
+}
+
+interface FiveDayTooltipProps {
+  active?: boolean;
+  payload?: ReadonlyArray<{ payload?: unknown }>;
+  formatTime: (date: Date) => string;
+  temperatureSymbol: string;
+}
+
 type RangeValue = "24h" | "5d";
 
 const MOBILE_QUERY = "(max-width: 639px)";
@@ -138,6 +151,95 @@ const PeakLabel = ({ viewBox, value }: PeakLabelProps) => {
   );
 };
 
+function HourlyTooltip({
+  active,
+  payload,
+  temperatureSymbol,
+}: Readonly<HourlyTooltipProps>) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-xl border bg-popover p-2 shadow-md">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-[0.70rem] uppercase text-muted-foreground">
+            Temperatura
+          </span>
+          <span className="font-bold">
+            {payload[0].value}
+            {temperatureSymbol}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[0.70rem] uppercase text-muted-foreground">
+            Sensação térmica
+          </span>
+          <span className="font-bold">
+            {payload[1].value}
+            {temperatureSymbol}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FiveDayTooltip({
+  active,
+  payload,
+  formatTime,
+  temperatureSymbol,
+}: Readonly<FiveDayTooltipProps>) {
+  if (!active || !payload?.length) return null;
+
+  const item = payload[0].payload as FiveDayChartData;
+  const date = new Date(item.ts);
+
+  return (
+    <div className="space-y-2 rounded-xl border bg-popover p-3 shadow-md">
+      <div className="flex items-center gap-2">
+        <WeatherIcon
+          code={item.icon}
+          label={item.description}
+          className="h-8 w-8 shrink-0"
+        />
+        <div className="leading-tight">
+          <p className="text-xs font-semibold capitalize">
+            {format(date, "EEEE, d 'de' MMMM", {
+              locale: ptBR,
+            })}
+            {" · "}
+            {formatTime(date)}
+          </p>
+          <p className="text-[0.70rem] capitalize text-muted-foreground">
+            {item.description}
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col">
+          <span className="text-[0.70rem] uppercase text-muted-foreground">
+            Temperatura
+          </span>
+          <span className="font-bold">
+            {item.temp}
+            {temperatureSymbol}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[0.70rem] uppercase text-muted-foreground">
+            Sensação térmica
+          </span>
+          <span className="font-bold">
+            {item.feels_like}
+            {temperatureSymbol}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ChartLegend() {
   return (
     <ul
@@ -149,20 +251,20 @@ function ChartLegend() {
           aria-hidden="true"
           className="h-[3px] w-5 shrink-0 rounded-full bg-primary"
         />
-        Temperatura
+        <span>Temperatura</span>
       </li>
       <li className="flex items-center gap-2">
         <span
           aria-hidden="true"
           className="w-5 shrink-0 border-t-2 border-dashed border-foreground/60"
         />
-        Sensação térmica
+        <span>Sensação térmica</span>
       </li>
     </ul>
   );
 }
 
-function HourlyChart({ data }: { data: ForecastData }) {
+function HourlyChart({ data }: Readonly<{ data: ForecastData }>) {
   const { convertTemperature, temperatureSymbol, formatHour } = useSettings();
 
   //Pega os dados do clima de hoje  e formata para o chart
@@ -178,7 +280,10 @@ function HourlyChart({ data }: { data: ForecastData }) {
   const values = chartData.flatMap((item) => [item.temp, item.feels_like]);
   const yMin = Math.floor(Math.min(...values)) - 2;
   const yMax = Math.ceil(Math.max(...values)) + 2;
-  const peak = chartData.reduce((a, b) => (b.temp > a.temp ? b : a));
+  const peak = chartData.reduce(
+    (a, b) => (b.temp > a.temp ? b : a),
+    chartData[0],
+  );
 
   return (
     <div className="space-y-3">
@@ -225,35 +330,7 @@ function HourlyChart({ data }: { data: ForecastData }) {
             />
             <Tooltip
               cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="rounded-xl border bg-popover p-2 shadow-md">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Temperatura
-                          </span>
-                          <span className="font-bold">
-                            {payload[0].value}
-                            {temperatureSymbol}
-                          </span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Sensação térmica
-                          </span>
-                          <span className="font-bold">
-                            {payload[1].value}
-                            {temperatureSymbol}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
+              content={<HourlyTooltip temperatureSymbol={temperatureSymbol} />}
             />
             <Area
               type="monotone"
@@ -298,7 +375,7 @@ function HourlyChart({ data }: { data: ForecastData }) {
   );
 }
 
-function FiveDayChart({ data }: { data: ForecastData }) {
+function FiveDayChart({ data }: Readonly<{ data: ForecastData }>) {
   const { convertTemperature, temperatureSymbol, formatTime } = useSettings();
   const isMobile = useIsMobile();
 
@@ -313,10 +390,13 @@ function FiveDayChart({ data }: { data: ForecastData }) {
   const values = chartData.flatMap((item) => [item.temp, item.feels_like]);
   const yMin = Math.floor(Math.min(...values)) - 2;
   const yMax = Math.ceil(Math.max(...values)) + 2;
-  const peak = chartData.reduce((a, b) => (b.temp > a.temp ? b : a));
+  const peak = chartData.reduce(
+    (a, b) => (b.temp > a.temp ? b : a),
+    chartData[0],
+  );
 
   const first = chartData[0].ts;
-  const last = chartData[chartData.length - 1].ts;
+  const last = chartData.at(-1)?.ts ?? first;
 
   const dayTicks: number[] = [];
   for (
@@ -391,56 +471,12 @@ function FiveDayChart({ data }: { data: ForecastData }) {
             />
             <Tooltip
               cursor={{ stroke: "var(--primary)", strokeDasharray: "4 4" }}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const item = payload[0].payload as FiveDayChartData;
-                  const date = new Date(item.ts);
-                  return (
-                    <div className="space-y-2 rounded-xl border bg-popover p-3 shadow-md">
-                      <div className="flex items-center gap-2">
-                        <WeatherIcon
-                          code={item.icon}
-                          label={item.description}
-                          className="h-8 w-8 shrink-0"
-                        />
-                        <div className="leading-tight">
-                          <p className="text-xs font-semibold capitalize">
-                            {format(date, "EEEE, d 'de' MMMM", {
-                              locale: ptBR,
-                            })}
-                            {" · "}
-                            {formatTime(date)}
-                          </p>
-                          <p className="text-[0.70rem] capitalize text-muted-foreground">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Temperatura
-                          </span>
-                          <span className="font-bold">
-                            {item.temp}
-                            {temperatureSymbol}
-                          </span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Sensação térmica
-                          </span>
-                          <span className="font-bold">
-                            {item.feels_like}
-                            {temperatureSymbol}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
+              content={
+                <FiveDayTooltip
+                  formatTime={formatTime}
+                  temperatureSymbol={temperatureSymbol}
+                />
+              }
             />
             <Area
               type="monotone"
@@ -485,7 +521,7 @@ function FiveDayChart({ data }: { data: ForecastData }) {
   );
 }
 
-export function HourlyTemperature({ data }: HourlyTemperatureProps) {
+export function HourlyTemperature({ data }: Readonly<HourlyTemperatureProps>) {
   const [range, setRange] = useState<RangeValue>("24h");
 
   return (

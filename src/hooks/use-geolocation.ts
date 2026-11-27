@@ -161,7 +161,7 @@ export function useGeolocation() {
 
   // Pega a localização quando o componente monta
   useEffect(() => {
-    getLocation();
+    void getLocation();
   }, []);
 
   return {

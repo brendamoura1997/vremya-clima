@@ -1,4 +1,5 @@
 // src/components/weather/favorite-cities.tsx
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWeatherQuery } from "@/hooks/use-weather";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -29,53 +30,61 @@ function FavoriteCityTablet({
   const { formatTemperature } = useSettings();
 
   const handleClick = () => {
-    navigate(`/city/${name}?lat=${lat}&lon=${lon}`);
+    void navigate(`/city/${name}?lat=${lat}&lon=${lon}`);
   };
 
+  let content: ReactNode = null;
+
+  if (isLoading) {
+    content = (
+      <div className="flex h-8 items-center justify-center">
+        <Loader2 className="h-4 w-4 animate-spin" />
+      </div>
+    );
+  } else if (weather) {
+    content = (
+      <>
+        <WeatherIcon
+          code={weather.weather[0].icon}
+          label={weather.weather[0].description}
+          className="h-10 w-10 shrink-0"
+        />
+        <div className="min-w-0 leading-tight">
+          <p className="truncate text-sm font-medium">{name}</p>
+          <p className="text-sm font-semibold">
+            {formatTemperature(weather.main.temp, { withUnit: true })}
+          </p>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div
-      onClick={handleClick}
-      className="relative flex h-14 min-w-[240px] shrink-0 cursor-pointer items-center gap-3 rounded-full border bg-card/80 py-2 pl-4 pr-12 shadow-md shadow-primary/5 backdrop-blur transition-all hover:shadow-lg"
-      role="button"
-      tabIndex={0}
-      title={
-        weather
-          ? `${name}, ${weather.sys.country} - ${weather.weather[0].description}`
-          : name
-      }
-    >
+    <div className="relative h-14 min-w-[240px] shrink-0">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="flex h-full w-full cursor-pointer items-center gap-3 rounded-full border bg-card/80 py-2 pl-4 pr-12 text-left shadow-md shadow-primary/5 backdrop-blur outline-none transition-all hover:shadow-lg focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        title={
+          weather
+            ? `${name}, ${weather.sys.country} - ${weather.weather[0].description}`
+            : name
+        }
+      >
+        {content}
+      </button>
       <Button
         variant="ghost"
         size="icon"
+        aria-label={`Remover ${name} dos favoritos`}
         className="absolute right-3 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full p-0 cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
+        onClick={() => {
           onRemove(id);
           toast.info(`${name} foi removido dos seus Favoritos`);
         }}
       >
         <X className="h-4 w-4" />
       </Button>
-
-      {isLoading ? (
-        <div className="flex h-8 items-center justify-center">
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </div>
-      ) : weather ? (
-        <>
-          <WeatherIcon
-            code={weather.weather[0].icon}
-            label={weather.weather[0].description}
-            className="h-10 w-10 shrink-0"
-          />
-          <div className="min-w-0 leading-tight">
-            <p className="truncate text-sm font-medium">{name}</p>
-            <p className="text-sm font-semibold">
-              {formatTemperature(weather.main.temp, { withUnit: true })}
-            </p>
-          </div>
-        </>
-      ) : null}
     </div>
   );
 }
@@ -122,7 +131,7 @@ export function FavoriteCities() {
         <Button
           variant="outline"
           onClick={openCitySearch}
-          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-2 w-35 shadow-md lg:inline-flex"
+          className="hidden h-14 shrink-0 rounded-full bg-card/80 px-2 w-35 shadow-md md:inline-flex"
         >
           Ver todos
           <ChevronRight className="h-4 w-4" />

@@ -29,11 +29,11 @@ const WeatherDashboard = () => {
   const locationQuery = useReverseGeocodeQuery(coordinates);
 
   const handleRefresh = () => {
-    getLocation();
+    void getLocation();
     if (coordinates) {
-      weatherQuery.refetch();
-      forecastQuery.refetch();
-      locationQuery.refetch();
+      void weatherQuery.refetch();
+      void forecastQuery.refetch();
+      void locationQuery.refetch();
     }
   };
 
