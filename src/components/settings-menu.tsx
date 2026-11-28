@@ -31,7 +31,7 @@ function SettingRow({
   iconColor,
   iconBackground,
   children,
-}: SettingRowProps) {
+}: Readonly<SettingRowProps>) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-3 rounded-2xl border bg-muted/50 p-3">
       <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ function SettingRow({
   );
 }
 
-export function SettingsMenu({ className }: SettingsMenuProps) {
+export function SettingsMenu({ className }: Readonly<SettingsMenuProps>) {
   const { theme, setTheme } = useTheme();
   const { temperatureUnit, setTemperatureUnit, timeFormat, setTimeFormat } =
     useSettings();
